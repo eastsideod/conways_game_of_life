@@ -21,6 +21,8 @@ flags.DEFINE_integer('board_max_width', 90, 'set board max width.')
 flags.DEFINE_integer('board_min_height', 40, 'set board min height.')
 flags.DEFINE_integer('board_max_height', 50, 'set board max height.')
 flags.DEFINE_string('conf_file', '', 'load game file(absolute path).')
+flags.DEFINE_integer('dump_generation_count', 0, 'dump generation count.')
+flags.DEFINE_string('dump_file', 'dump.txt', 'dump game file(absolute path).')
 
 
 # 프로그램 관련 설정 값 정의.
@@ -33,6 +35,10 @@ def run_game_loop():
         print('================================================')
         print('generation - {0}'.format(Board.GENERATION_COUNT))
         board_data = Board.get_board_data()
+        assert board_data
+        if Board.GENERATION_COUNT == FLAGS.dump_generation_count:
+            dump_board_data(board_data)
+
         renderer.render(board_data)
         if Board.is_cell_all_dead():
             print('all cell are dead.')
@@ -42,6 +48,19 @@ def run_game_loop():
 
         game.tick()
         print('================================================')
+
+
+def dump_board_data(board_data):
+    assert board_data
+    with open(FLAGS.dump_file, 'w') as f:
+        f.write('game of life dump file \n')
+        if FLAGS.conf_file:
+            f.write('file={0} \n'.format(FLAGS.conf_file))
+        f.write('generation={0} \n'.format(FLAGS.dump_generation_count))
+        f.write('================================================')
+        buf = renderer.get_render_buffer(board_data)
+        f.write(buf.getvalue())
+        f.write('================================================')
 
 
 def main(argv):
@@ -76,14 +95,14 @@ def main(argv):
                                           FLAGS.board_max_width,
                                           FLAGS.board_min_height,
                                           FLAGS.board_max_height)
-        logging.debug('The board size was initialized randomly. ',
-                      'board_min_width=', FLAGS.board_min_width,
-                      'board_max_width=', FLAGS.board_max_width,
-                      'board_min_height=', FLAGS.board_min_height,
-                      'board_max_height=', FLAGS.board_max_height)
+        logging.info('The board size was initialized randomly. ')
+        logging.debug('board_min_width={0}', FLAGS.board_min_width)
+        logging.debug('board_max_width={0}', FLAGS.board_max_width)
+        logging.debug('board_min_height={0}', FLAGS.board_min_height)
+        logging.debug('board_max_height={0}', FLAGS.board_max_height)
     else:
         board.init_board_size(FLAGS.board_width, FLAGS.board_height)
-        logging.debug('The board size was initialized specific size. ')
+        logging.info('The board size was initialized specific size. ')
         logging.debug('board_width={0}'.format(FLAGS.board_width))
         logging.debug('board_height={0}'.format(FLAGS.board_height))
 
