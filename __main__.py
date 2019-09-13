@@ -1,12 +1,11 @@
 # encoding: utf-8
 import time
 
-from absl import flags
+from absl import flags, logging
 from absl import app as absl_app
 
-from .app import board
+from .app import board, game, renderer
 from .app.board import Board
-from .app import renderer
 
 
 FLAGS = flags.FLAGS
@@ -17,9 +16,9 @@ flags.DEFINE_integer('board_width', 0, 'set board width.')
 flags.DEFINE_integer('board_height', 0, 'set board height.')
 
 flags.DEFINE_integer('board_min_width', 80, 'set board min width.')
-flags.DEFINE_integer('board_max_width', 160, 'set board max width.')
+flags.DEFINE_integer('board_max_width', 90, 'set board max width.')
 flags.DEFINE_integer('board_min_height', 40, 'set board min height.')
-flags.DEFINE_integer('board_max_height', 80, 'set board max height.')
+flags.DEFINE_integer('board_max_height', 50, 'set board max height.')
 flags.DEFINE_string('game_file', 'game_file_name.txt',
                     'load game file(absolute path).')
 
@@ -30,10 +29,19 @@ flags.DEFINE_bool('unittest', False, 'execute unittest')
 
 def run_game_loop():
     while True:
-        time.sleep(0.3)
-        Board.tick()
+        time.sleep(5)
+        print('================================================')
+        print('generation - {0}'.format(Board.GENERATION_COUNT))
         board_data = Board.get_board_data()
         renderer.render(board_data)
+        if Board.is_cell_all_dead():
+            print('all cell are dead.')
+            print('================================================')
+            exit(0)
+            return
+
+        game.tick()
+        print('================================================')
 
 
 def main(argv):
@@ -49,13 +57,19 @@ def main(argv):
                                           FLAGS.board_max_width,
                                           FLAGS.board_min_height,
                                           FLAGS.board_max_height)
+        logging.debug('The board size was initialized randomly. ',
+                      'board_min_width=', FLAGS.board_min_width,
+                      'board_max_width=', FLAGS.board_max_width,
+                      'board_min_height=', FLAGS.board_min_height,
+                      'board_max_height=', FLAGS.board_max_height)
     else:
         board.init_board_size(FLAGS.board_width, FLAGS.board_height)
-
+        logging.debug('The board size was initialized specific size. ',
+                      'board_width=', FLAGS.board_width,
+                      'board_height=', FLAGS.board_height)
     # TODO(inkeun): 필요 시 gevent 를 사용하여 main thread / game loop thread 를 분할
     run_game_loop()
 
 
 # absl app 초기화 및 main() 실행.
 absl_app.run(main)
-

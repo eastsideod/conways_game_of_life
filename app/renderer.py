@@ -7,6 +7,7 @@ from io import StringIO
 # BOARD_VALUE_TYPES 의 value 에 대응한다.
 BOARD_RENDER_TYPES = [
     ' ',  # empty
+    'O',  # alive
 ]
 
 
