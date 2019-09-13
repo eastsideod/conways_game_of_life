@@ -31,12 +31,12 @@ flags.DEFINE_bool('unittest', False, 'execute unittest')
 
 def run_game_loop():
     while True:
-        time.sleep(5)
+        time.sleep(2)
         print('================================================')
         print('generation - {0}'.format(Board.GENERATION_COUNT))
         board_data = Board.get_board_data()
         assert board_data
-        if Board.GENERATION_COUNT == FLAGS.dump_generation_count:
+        if Board.GENERATION_COUNT == int(FLAGS.dump_generation_count):
             dump_board_data(board_data)
 
         renderer.render(board_data)
@@ -52,6 +52,10 @@ def run_game_loop():
 
 def dump_board_data(board_data):
     assert board_data
+
+    logging.debug('dump_board_data. generation={0}'.format(
+        FLAGS.dump_generation_count))
+
     with open(FLAGS.dump_file, 'w') as f:
         f.write('game of life dump file \n')
         if FLAGS.conf_file:
@@ -63,10 +67,29 @@ def dump_board_data(board_data):
         f.write('================================================')
 
 
+def parse_argv(argv):
+    argv.pop(0)
+    if not argv:
+        logging.info('no command line arguments. skipping.')
+        return True
+
+    argv_size = len(argv)
+    if argv_size >= 1:
+        logging.info('set conf file from argument={0}'.format(argv[0]))
+        FLAGS.conf_file = argv[0]
+
+    if argv_size >= 2:
+        logging.info('set dump generation count from argument={0}'.format(
+            argv[1]))
+        FLAGS.dump_generation_count = argv[1]
+
+
 def main(argv):
     if FLAGS.unittest:
         raise NotImplementedError()
         return
+
+    parse_argv(argv)
 
     file_conf = None
     initial_cell_conf = []
