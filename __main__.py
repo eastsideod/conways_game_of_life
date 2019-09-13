@@ -114,17 +114,17 @@ def main(argv):
 
     # random size
     if FLAGS.board_width == 0 and FLAGS.board_height == 0:
-        board.init_board_size_by_randomly(FLAGS.board_min_width,
-                                          FLAGS.board_max_width,
-                                          FLAGS.board_min_height,
-                                          FLAGS.board_max_height)
+        board.init_board_size_by_randomly(int(FLAGS.board_min_width),
+                                          int(FLAGS.board_max_width),
+                                          int(FLAGS.board_min_height),
+                                          int(FLAGS.board_max_height))
         logging.info('The board size was initialized randomly. ')
         logging.debug('board_min_width={0}', FLAGS.board_min_width)
         logging.debug('board_max_width={0}', FLAGS.board_max_width)
         logging.debug('board_min_height={0}', FLAGS.board_min_height)
         logging.debug('board_max_height={0}', FLAGS.board_max_height)
     else:
-        board.init_board_size(FLAGS.board_width, FLAGS.board_height)
+        board.init_board_size(int(FLAGS.board_width), int(FLAGS.board_height))
         logging.info('The board size was initialized specific size. ')
         logging.debug('board_width={0}'.format(FLAGS.board_width))
         logging.debug('board_height={0}'.format(FLAGS.board_height))
